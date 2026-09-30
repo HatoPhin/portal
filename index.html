@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>課題ポータル</title>
+<style>
+:root{--pri:#5b5fc7;--nav:#2b2b40;--bg:#f5f5f5;--surface:#fff;--text:#242424;--muted:#616161;--line:#e0e0e0;--navtext:#fff;--pritext:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--surface:#292929;--text:#f0f0f0;--muted:#aaa;--line:#3d3d3d}}
+:root[data-theme="dark"]{--surface:#292929;--text:#f0f0f0;--muted:#aaa;--line:#3d3d3d}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:"Segoe UI","Hiragino Sans","Yu Gothic UI",Meiryo,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+button,input,textarea{font:inherit;color:inherit}
+#app{display:grid;grid-template-columns:68px 1fr;height:100%}
+nav{background:var(--nav);color:var(--navtext);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px}
+nav button{background:none;border:0;color:inherit;opacity:.7;width:60px;padding:8px 0;border-radius:6px;font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button .i{font-size:20px;line-height:1.2}
+nav button.on{opacity:1;background:rgba(255,255,255,.16)}
+nav button:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible,.item:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.spacer{flex:1}
+#wrap{display:flex;flex-direction:column;min-width:0;height:100%}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+header h1{font-size:16px;margin:0;flex:1}
+.pill{border:1px solid var(--line);background:none;border-radius:999px;padding:4px 12px;cursor:pointer}
+.av{width:32px;height:32px;border-radius:50%;background:var(--pri);color:var(--pritext);display:grid;place-items:center;font-weight:600;flex:none}
+#body{flex:1;display:flex;min-height:0}
+#list{width:300px;background:var(--surface);border-right:1px solid var(--line);overflow:auto;flex:none}
+#main{flex:1;min-width:0;overflow:auto;padding:16px;display:flex;flex-direction:column}
+.tabs{display:flex;gap:16px;padding:0 16px;border-bottom:1px solid var(--line)}
+.tabs button{background:none;border:0;padding:12px 2px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent}
+.tabs button.on{color:var(--text);border-color:var(--pri);font-weight:600}
+.item{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 16px;cursor:pointer}
+.item.on{background:color-mix(in srgb,var(--pri) 12%,transparent)}
+.item b{display:block;margin-bottom:2px}
+.sub{color:var(--muted);font-size:12px}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,var(--pri) 16%,transparent);color:var(--text);margin-left:6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:12px}
+.btn{background:var(--pri);color:var(--pritext);border:0;border-radius:4px;padding:8px 16px;cursor:pointer;font-weight:600}
+.btn.ghost{background:none;color:var(--text);border:1px solid var(--line)}
+textarea,input[type=text]{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px}
+#msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:8px}
+.m{display:flex;gap:8px;max-width:80%}
+.m.me{align-self:flex-end;flex-direction:row-reverse}
+.bub{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.me .bub{background:color-mix(in srgb,var(--pri) 16%,var(--surface));border-color:transparent}
+.send{display:flex;gap:8px;padding-top:8px}
+.row{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.row label{width:130px}
+input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-radius:4px;padding:2px;background:none}
+.sw{display:flex;gap:8px;flex-wrap:wrap}
+.sw button{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;align-items:start}
+.grid .card,.hcard{margin:0}
+.calh{display:flex;align-items:center;justify-content:space-between;margin:8px 0}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:2px}
+.day{display:grid;place-items:center;height:36px;border-radius:6px;background:none;border:0;position:relative;cursor:default;font-size:13px}
+.day.today{background:color-mix(in srgb,var(--pri) 18%,transparent);font-weight:700}
+.day.has{cursor:pointer}
+.day.has i{position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:var(--pri)}
+.day.has i.dn{background:var(--muted)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes slr{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes sll{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+@keyframes tagpop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.18);opacity:1}100%{transform:scale(1)}}
+.enter>*:not(.grid){animation:rise .32s cubic-bezier(.2,.7,.2,1) both}
+.enter .grid>*{animation:rise .36s cubic-bezier(.2,.7,.2,1) both}
+.enter .grid>*:nth-child(2){animation-delay:.07s}
+.enter .grid>*:nth-child(3){animation-delay:.14s}
+.enter>*:nth-child(2):not(.grid){animation-delay:.06s}
+.enter>*:nth-child(3):not(.grid){animation-delay:.12s}
+.m.new{animation:pop .28s cubic-bezier(.2,.8,.3,1.1) both}
+.cal.sr{animation:slr .25s ease both}
+.cal.sl{animation:sll .25s ease both}
+.tag.pop{animation:tagpop .4s ease both}
+nav button,.item,.pill,.tabs button,.day{transition:background-color .18s,opacity .18s,color .18s}
+.btn{transition:filter .15s,transform .1s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active,.pill:active{transform:scale(.96)}
+.item:hover{background:color-mix(in srgb,var(--pri) 8%,transparent)}
+.day.has:hover{background:color-mix(in srgb,var(--pri) 14%,transparent)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.back{display:none}
+@media (max-width:720px){
+#app{grid-template-columns:1fr;grid-template-rows:1fr auto}
+nav{flex-direction:row;justify-content:space-around;order:2;padding:4px 0}
+nav .spacer{display:none}
+#list{width:100%;border:0}
+.back{display:inline-block}
+#body.detail #list{display:none}
+#body:not(.detail).hasList #main{display:none}
+.m{max-width:92%}
+}
+#login{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:10;padding:16px}
+#login[hidden]{display:none}
+.lcard{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:28px 24px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;text-align:center;animation:rise .3s ease both}
+.lcard h2{margin:0}
+input[type=password]{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px}
+.btn:disabled{opacity:.6;cursor:default}
+</style>
+</head>
+<body>
+<div id="app">
+  <nav id="nav" aria-label="メイン"></nav>
+  <div id="wrap">
+    <header>
+      <button class="pill back btn ghost" id="back" style="padding:4px 10px">‹ 戻る</button>
+      <h1 id="title"></h1>
+      <button class="pill" id="role" title="デモ用に立場を切り替えます"></button>
+      <div class="av" id="me"></div>
+    </header>
+    <div id="body"><div id="list"></div><div id="main"></div></div>
+  </div>
+</div>
+<div id="login"><div class="lcard" id="lc" style="visibility:hidden"><div class="av" style="margin:0 auto;width:48px;height:48px;font-size:20px">課</div><h2>課題ポータル</h2><input type="text" id="em" placeholder="メールアドレス" autocomplete="username" aria-label="メールアドレス"><input type="password" id="pw" placeholder="パスワード" autocomplete="current-password" aria-label="パスワード"><button class="btn" id="li">ログイン</button><p class="sub" id="lerr" role="alert" style="margin:0"></p></div></div>
+<script src="https://cdn.jsdelivr.net/npm/appwrite@28.1.0/dist/iife/sdk.js"></script>
+<script>
+var PRESETS={"Teams紫":{pri:"#5b5fc7",nav:"#2b2b40",bg:"#f5f5f5"},"ブルー":{pri:"#0f6cbd",nav:"#0b2a4a",bg:"#f3f6fa"},"グリーン":{pri:"#2a7d5f",nav:"#12332a",bg:"#f2f7f4"},"ローズ":{pri:"#c2385a",nav:"#3a1622",bg:"#faf3f5"},"モノクロ":{pri:"#424242",nav:"#1f1f1f",bg:"#f5f5f5"}};
+var theme=Object.assign({},PRESETS["Teams紫"]);
+try{var s=localStorage.getItem("portal-theme");if(s)theme=Object.assign(theme,JSON.parse(s))}catch(e){}
+var today=new Date();
+function D(n){return new Date(today.getFullYear(),today.getMonth(),today.getDate()+n)}
+function F(n){var d=D(n);return("0"+(d.getMonth()+1)).slice(-2)+"/"+("0"+d.getDate()).slice(-2)+" 23:59"}
+var feat={recent:1,cal:1,list:1,chat:1,tasks:1};
+try{var fs=localStorage.getItem("portal-feat");if(fs)feat=Object.assign(feat,JSON.parse(fs))}catch(e){}
+var S={role:"student",view:"home",cal:0,tab:"open",sel:null,detail:false,tasks:[],msgs:[],user:null,setId:""};
+function esc(x){return String(x).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function lum(h){var n=parseInt(h.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;return(.299*r+.587*g+.114*b)/255}
+function apply(){var r=document.documentElement.style;
+r.setProperty("--pri",theme.pri);r.setProperty("--nav",theme.nav);r.setProperty("--bg",theme.bg);
+r.setProperty("--navtext",lum(theme.nav)>.6?"#1a1a1a":"#fff");r.setProperty("--pritext",lum(theme.pri)>.6?"#1a1a1a":"#fff");
+try{localStorage.setItem("portal-theme",JSON.stringify(theme))}catch(e){}}
+function $(i){return document.getElementById(i)}
+function render(){
+var T=S.role==="teacher";
+$("role").textContent="ログアウト";$("role").title=S.user?(S.user.name||S.user.email||""):"";
+$("me").textContent=T?"教":"学";
+var items=[["home","🏠","ホーム"]];
+if(feat.chat)items.push(["chat","💬","チャット"]);
+if(feat.tasks)items.push(["tasks","📋","課題"]);
+if(T)items.push(["settings","⚙️","設定"]);
+if(items.map(function(a){return a[0]}).indexOf(S.view)<0)S.view="home";
+$("nav").innerHTML=items.map(function(a){return'<button data-v="'+a[0]+'" class="'+(S.view===a[0]?"on":"")+'"><span class="i">'+a[1]+'</span>'+a[2]+'</button>'}).join("");
+
+var hasList=S.view==="tasks";
+$("body").className=(hasList?"hasList ":"")+(S.detail?"detail":"");
+$("back").style.display=(S.detail&&hasList)?"inline-block":"none";
+$("list").style.display=hasList?"":"none";
+$("title").textContent={home:"ホーム",chat:"チャット",tasks:"課題",settings:"設定"}[S.view];
+if(S.view==="home")home();else if(S.view==="chat")chat();else if(S.view==="tasks")tasks();else settings();
+var k=S.view+":"+(S.view==="tasks"?S.sel+S.tab:"");
+if(k!==S.key){S.key=k;var mm=$("main");mm.classList.remove("enter");void mm.offsetWidth;mm.classList.add("enter");setTimeout(function(){mm.classList.remove("enter")},800)}}
+function calW(){var b=new Date(today.getFullYear(),today.getMonth()+S.cal,1),y=b.getFullYear(),m=b.getMonth(),n=new Date(y,m+1,0).getDate(),st=b.getDay(),by={};
+S.tasks.forEach(function(t){var k=t.dt.getFullYear()+"-"+t.dt.getMonth()+"-"+t.dt.getDate();(by[k]=by[k]||[]).push(t)});
+var cc="cal"+(S.calDir?(S.calDir>0?" sr":" sl"):"");S.calDir=0;
+var c='<div class="calh"><button class="pill" data-cm="-1" aria-label="前の月">‹</button><b>'+y+'年'+(m+1)+'月</b><button class="pill" data-cm="1" aria-label="次の月">›</button></div><div class="'+cc+'">'+"日月火水木金土".split("").map(function(w){return'<span class="sub">'+w+'</span>'}).join("");
+for(var i=0;i<st;i++)c+='<span></span>';
+for(var d=1;d<=n;d++){var ts=by[y+"-"+m+"-"+d],tc=(d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear())?" today":"";
+c+=ts?'<button class="day has'+tc+'" data-open="'+ts[0].id+'" title="'+esc(ts[0].title)+'" aria-label="'+d+'日 '+esc(ts[0].title)+'">'+d+'<i class="'+(ts[0].st==="done"?"dn":"")+'"></i></button>':'<span class="day'+tc+'">'+d+'</span>'}
+return c+'</div>'}
+function home(){var h="",up=S.tasks.filter(function(t){return t.st==="open"}).length,g="";
+if(feat.recent)g+='<div class="card hcard"><b>最近の会話</b>'+S.msgs.slice(-3).reverse().map(function(m){return'<button class="item" data-v="chat" style="padding:8px 0"><b>'+(m.me?"学生":"教員")+'</b><span class="sub">'+m.time+' </span>'+esc(m.t)+'</button>'}).join("")+'</div>';
+if(feat.cal)g+='<div class="card hcard"><b>課題の期限</b>'+calW()+'</div>';
+if(feat.list){var base=D(0);g+='<div class="card hcard"><b>課題一覧</b>'+(S.tasks.length?S.tasks.slice().sort(function(a,b){return a.st===b.st?a.dt-b.dt:(a.st==="open"?-1:1)}).map(function(t){var n=Math.round((t.dt-base)/864e5);return'<button class="item" data-open="'+t.id+'" style="padding:8px 0"><b>'+esc(t.title)+'<span class="tag">'+(t.st==="done"?"提出済み":n<0?"期限超過":n===0?"今日まで":n>3000?"期限なし":"あと"+n+"日")+'</span></b><span class="sub">期限 '+t.due+'</span></button>'}).join(""):'<p class="sub">課題はありません。</p>')+'</div>'}
+h='<div class="card"><h2 style="margin:0">ホーム</h2><p class="sub" style="margin:4px 0 0">'+(up?"未提出の課題が "+up+" 件あります。":"未提出の課題はありません。")+'</p></div>';
+$("main").innerHTML=h+(g?'<div class="grid">'+g+'</div>':'<div class="card sub">表示する項目がありません。'+(S.role==="teacher"?"設定タブで有効にできます。":"")+'</div>')}
+function featCard(){var L=[["recent","ホーム:最近の会話"],["cal","ホーム:課題カレンダー"],["list","ホーム:課題一覧"],["chat","チャットタブ"],["tasks","課題タブ"]];
+return'<div class="card"><b>表示する機能</b><p class="sub">オフにした項目は、学生の画面からも非表示になります。</p>'+L.map(function(a){return'<label class="row" style="cursor:pointer"><input type="checkbox" data-f="'+a[0]+'"'+(feat[a[0]]?" checked":"")+'> '+a[1]+'</label>'}).join("")+'</div>'}
+function chat(){
+$("main").innerHTML='<div id="msgs">'+S.msgs.map(function(m){var mine=(S.role==="teacher")===!!m.me?0:1;
+var who=m.me?"教":"学";return'<div class="m'+(m.me===(S.role==="teacher"?0:1)?" me":"")+'"><div class="av">'+(m.me?"学":"教")+'</div><div><div class="bub">'+esc(m.t)+'</div><div class="sub">'+m.time+'</div></div></div>'}).join("")+'</div><div class="send"><input type="text" id="in" placeholder="メッセージを入力" aria-label="メッセージ"><button class="btn" id="go">送信</button></div>';
+var box=$("msgs");box.scrollTop=box.scrollHeight;
+if(S.newMsg){var ms=box.querySelectorAll(".m");if(ms.length)ms[ms.length-1].classList.add("new");S.newMsg=false}
+async function go(){var v=$("in").value.trim();if(!v)return;$("in").value="";try{await A.tdb.createRow({databaseId:DB,tableId:T_MSG,rowId:ID.unique(),data:{senderId:S.user.$id,body:v}});await loadMsgs(true)}catch(e){alert("送信に失敗しました: "+e.message);$("in").value=v}}
+$("go").onclick=go;$("in").onkeydown=function(e){if(e.key==="Enter"&&!e.isComposing)go()}}
+function tasks(){
+var T=S.role==="teacher";
+var open=S.tasks.filter(function(t){return t.st==="open"}),done=S.tasks.filter(function(t){return t.st==="done"});
+var list=S.tab==="open"?open:done;
+$("list").innerHTML='<div class="tabs"><button data-t="open" class="'+(S.tab==="open"?"on":"")+'">'+(T?"未提出":"割り当て済み")+' ('+open.length+')</button><button data-t="done" class="'+(S.tab==="done"?"on":"")+'">'+(T?"提出済み":"完了")+' ('+done.length+')</button></div>'+
+(T?'<div style="padding:12px 16px"><button class="btn" id="new" style="width:100%">＋ 課題を作成</button></div>':"")+
+(list.length?list.map(function(t){return'<button class="item'+(S.sel===t.id?" on":"")+'" data-id="'+t.id+'"><b>'+esc(t.title)+'</b><span class="sub">期限 '+t.due+'</span></button>'}).join(""):'<p class="sub" style="padding:16px">このタブに課題はありません。</p>');
+var t=S.tasks.filter(function(x){return x.id===S.sel})[0];
+if(!t){$("main").innerHTML='<div class="card sub">左の一覧から課題を選んでください。</div>';return}
+var h='<div class="card"><h2 style="margin:0 0 4px">'+esc(t.title)+'<span class="tag'+(S.pop?" pop":"")+'">'+(t.st==="done"?"提出済み":"未提出")+'</span></h2><div class="sub">期限 '+t.due+'</div><p>'+esc(t.desc)+'</p></div>';
+if(!T){h+='<div class="card"><b>あなたの提出</b><p class="sub">'+(t.file?'添付: <button class="pill" id="openf">'+esc(t.fname||"ファイル")+'</button>':"まだファイルが添付されていません。")+'</p>'+
+'<input type="file" id="file" aria-label="ファイルを選択"> <p><button class="btn" id="sub">'+(t.st==="done"?"再提出する":"提出する")+'</button></p></div>'+
+'<div class="card"><b>フィードバック</b><p class="sub">'+(t.fb?esc(t.fb):"フィードバックはまだありません。")+'</p></div>'}
+else{h+='<div class="card"><b>学生の提出</b><p class="sub">'+(t.file?'添付: <button class="pill" id="openf">'+esc(t.fname||"ファイル")+'</button>':"まだ提出されていません。")+'</p></div>'+
+'<div class="card"><b>フィードバック</b><p><textarea id="fb" rows="4" placeholder="コメントを入力">'+esc(t.fb)+'</textarea></p><button class="btn" id="savefb">フィードバックを送信</button></div>'}
+$("main").innerHTML=h;
+var op=$("openf");if(op)op.onclick=function(){openFile(t.file,t.fname)};
+if(!T){$("sub").onclick=async function(){var f=$("file").files[0],bt=this;if(!f&&!t.file){alert("ファイルを選択してください。");return}bt.disabled=true;try{await submitWork(t,f);await load();S.tab="done";S.pop=true;render();S.pop=false}catch(e){alert("提出に失敗しました: "+e.message);bt.disabled=false}}}
+else{$("savefb").onclick=async function(){var bt=this;bt.disabled=true;try{await saveFb(t,$("fb").value);t.fb=$("fb").value;bt.textContent="送信しました"}catch(e){alert("送信に失敗しました: "+e.message)}bt.disabled=false}}}
+function settings(){
+$("main").innerHTML='<div class="card"><b>テーマカラー</b><p class="sub">教員のみ変更できます。変更はすぐ反映されます。</p>'+
+'<div class="row"><label for="c1">アクセント色</label><input type="color" id="c1" value="'+theme.pri+'"></div>'+
+'<div class="row"><label for="c2">ナビバーの色</label><input type="color" id="c2" value="'+theme.nav+'"></div>'+
+'<div class="row"><label for="c3">背景色</label><input type="color" id="c3" value="'+theme.bg+'"></div>'+
+'<b>プリセット</b><div class="sw" style="margin:8px 0 16px">'+Object.keys(PRESETS).map(function(k){return'<button title="'+k+'" aria-label="'+k+'" data-p="'+k+'" style="background:'+PRESETS[k].pri+'"></button>'}).join("")+'</div>'+
+'<button class="btn ghost" id="reset">初期設定に戻す</button></div>'+
+'<div class="card"><b>プレビュー</b><p><button class="btn">提出する</button> <span class="tag">未提出</span></p></div>'+featCard();
+[["c1","pri"],["c2","nav"],["c3","bg"]].forEach(function(p){$(p[0]).oninput=function(e){theme[p[1]]=e.target.value;apply();saveSettings()}});
+document.querySelectorAll("[data-p]").forEach(function(b){b.onclick=function(){theme=Object.assign({},PRESETS[b.dataset.p]);apply();saveSettings();settings()}});
+$("reset").onclick=function(){theme=Object.assign({},PRESETS["Teams紫"]);apply();saveSettings();settings()}}
+document.addEventListener("click",function(e){
+var b=e.target.closest("button,.item");if(!b)return;
+if(b.dataset.v){S.view=b.dataset.v;S.detail=false;render();load().then(function(){if(S.view==="home"||S.view==="tasks")render()}).catch(function(){})}
+else if(b.dataset.t){S.tab=b.dataset.t;S.sel=null;S.detail=false;render()}
+else if(b.dataset.id){S.sel=b.dataset.id;S.detail=true;render()}
+else if(b.id==="new"){newTask()}
+else if(b.dataset.cm){S.cal+=+b.dataset.cm;S.calDir=+b.dataset.cm;render()}
+else if(b.dataset.open){var id=b.dataset.open,tt=S.tasks.filter(function(x){return x.id===id})[0];S.view="tasks";S.sel=id;S.tab=tt&&tt.st==="done"?"done":"open";S.detail=true;render()}
+else if(b.id==="back"){S.detail=false;render()}
+else if(b.id==="role"){logout()}});
+document.addEventListener("change",function(e){var k=e.target.dataset&&e.target.dataset.f;if(!k)return;feat[k]=e.target.checked?1:0;try{localStorage.setItem("portal-feat",JSON.stringify(feat))}catch(x){}saveSettings();render()});
+
+var EP="https://sgp.cloud.appwrite.io/v1",PJ="6abcc56a001850f41a6e",DB="6abcc87300037bc05ab7",T_ASG="6abcc88d002df77ba4d5",T_SUB="6abcc8bd0033b6b7c85c",T_FB="6abcc8c4003c761b761d",T_MSG="6abcc8cb0012a0437c2b",T_SET="6abcc8d10002cdaf7edf",BK="6abcca90001fa74a8b4a";
+var AW=Appwrite,ID=AW.ID,Query=AW.Query,cl=new AW.Client().setEndpoint(EP).setProject(PJ);
+var A={acc:new AW.Account(cl),tdb:new AW.TablesDB(cl),st:new AW.Storage(cl)};
+function p2(n){return("0"+n).slice(-2)}
+function fmtDue(d){return p2(d.getMonth()+1)+"/"+p2(d.getDate())+" "+p2(d.getHours())+":"+p2(d.getMinutes())}
+async function rows(t){var r=await A.tdb.listRows({databaseId:DB,tableId:t,queries:[Query.limit(200)]});return r.rows}
+async function load(){
+var a=await rows(T_ASG),sb=await rows(T_SUB),fb=await rows(T_FB),by={},out=[];
+fb.forEach(function(f){by[f.submissionId]=f});
+var mine=S.role==="student"?sb.filter(function(x){return x.studentId===S.user.$id}):sb;
+a.sort(function(x,y){return(x.dueAt||"9")<(y.dueAt||"9")?-1:1});
+for(var i=0;i<a.length;i++){var r=a[i],s=mine.filter(function(x){return x.assignmentId===r.$id})[0],f=s&&by[s.$id],dt=r.dueAt?new Date(r.dueAt):new Date(2100,0,1);
+var t={id:r.$id,title:r.title,desc:r.description||"",dt:dt,due:r.dueAt?fmtDue(dt):"期限なし",st:s?"done":"open",file:(s&&s.fileId)||"",fname:"",subId:s?s.$id:"",fb:f?f.body:"",fbId:f?f.$id:""};
+if(t.file){try{t.fname=(await A.st.getFile({bucketId:BK,fileId:t.file})).name}catch(e){t.fname="ファイル"}}
+out.push(t)}
+S.tasks=out}
+async function loadMsgs(anim){
+var m=await rows(T_MSG),mr=S.role==="teacher"?0:1,n=S.msgs.length;
+m.sort(function(a,b){return a.$createdAt<b.$createdAt?-1:1});
+S.msgs=m.map(function(x){var d=new Date(x.$createdAt);return{me:x.senderId===S.user.$id?mr:1-mr,t:x.body,time:p2(d.getHours())+":"+p2(d.getMinutes())}});
+if(anim&&S.msgs.length>n)S.newMsg=true;
+if(S.view==="chat"||S.view==="home"){var iv=$("in")&&$("in").value,fo=document.activeElement&&document.activeElement.id==="in";render();if($("in")){if(iv)$("in").value=iv;if(fo)$("in").focus()}}}
+async function submitWork(t,f){
+var fid=t.file;
+if(f){var up=await A.st.createFile({bucketId:BK,fileId:ID.unique(),file:f});fid=up.$id}
+var now=new Date().toISOString();
+if(t.subId)await A.tdb.updateRow({databaseId:DB,tableId:T_SUB,rowId:t.subId,data:{fileId:fid,submittedAt:now}});
+else await A.tdb.createRow({databaseId:DB,tableId:T_SUB,rowId:ID.unique(),data:{assignmentId:t.id,studentId:S.user.$id,fileId:fid,submittedAt:now}})}
+async function saveFb(t,body){
+if(!t.subId)throw new Error("学生がまだ提出していません");
+if(t.fbId)await A.tdb.updateRow({databaseId:DB,tableId:T_FB,rowId:t.fbId,data:{body:body}});
+else{var r=await A.tdb.createRow({databaseId:DB,tableId:T_FB,rowId:ID.unique(),data:{submissionId:t.subId,body:body}});t.fbId=r.$id}}
+async function newTask(){
+var n=prompt("課題のタイトル");if(!n)return;
+var d=prompt("期限の日付(例 2026-10-14)。空欄なら期限なし","");
+var ds=prompt("課題の説明(空欄でも可)","")||"",dt=d?new Date(d+"T23:59:00"):null;
+if(dt&&isNaN(dt)){alert("日付の形式が正しくありません。");return}
+try{await A.tdb.createRow({databaseId:DB,tableId:T_ASG,rowId:ID.unique(),data:{title:n,description:ds,dueAt:dt?dt.toISOString():null}});await load();S.tab="open";render()}catch(e){alert("作成に失敗しました: "+e.message)}}
+async function openFile(id,name){
+try{var h={"X-Appwrite-Project":PJ},c=localStorage.getItem("cookieFallback");if(c)h["X-Fallback-Cookies"]=c;
+var r=await fetch(String(A.st.getFileDownload({bucketId:BK,fileId:id})),{headers:h,credentials:"include"});
+if(!r.ok)throw new Error(r.status);var bl=await r.blob(),a=document.createElement("a");a.href=URL.createObjectURL(bl);a.download=name||"file";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},5000)}
+catch(e){alert("ファイルを開けませんでした: "+e.message)}}
+async function loadSettings(){
+var r=await rows(T_SET);if(!r[0])return;S.setId=r[0].$id;
+try{theme=Object.assign(theme,JSON.parse(r[0].theme||"{}"))}catch(e){}
+try{feat=Object.assign(feat,JSON.parse(r[0].features||"{}"))}catch(e){}
+apply()}
+var svT;
+function saveSettings(){clearTimeout(svT);svT=setTimeout(async function(){
+if(S.role!=="teacher")return;var d={theme:JSON.stringify(theme),features:JSON.stringify(feat)};
+try{if(S.setId)await A.tdb.updateRow({databaseId:DB,tableId:T_SET,rowId:S.setId,data:d});else{var r=await A.tdb.createRow({databaseId:DB,tableId:T_SET,rowId:ID.unique(),data:d});S.setId=r.$id}}
+catch(e){console.warn(e)}},600)}
+var poll=0;
+async function startRealtime(){
+try{await new AW.Realtime(cl).subscribe(["databases."+DB+".tables."+T_MSG+".rows"],function(){loadMsgs(true).catch(function(){})})}catch(e){console.warn(e)}
+if(!poll)poll=setInterval(function(){if(S.user&&!document.hidden)loadMsgs(false).catch(function(){})},20000)}
+function showLogin(msg){$("login").hidden=false;$("lc").style.visibility="visible";$("lerr").textContent=msg||""}
+async function enter(){
+var L=S.user.labels||[];
+if(L.indexOf("teacher")>=0)S.role="teacher";
+else if(L.indexOf("member")>=0)S.role="student";
+else{try{await A.acc.deleteSession({sessionId:"current"})}catch(e){}S.user=null;showLogin("このアカウントには権限がありません。");return}
+try{await loadSettings();await load();await loadMsgs(false)}catch(e){alert("データを読み込めませんでした: "+e.message)}
+$("login").hidden=true;S.key="";render();startRealtime()}
+async function boot(){try{S.user=await A.acc.get();await enter()}catch(e){showLogin("")}}
+async function doLogin(){
+var b=$("li");b.disabled=true;$("lerr").textContent="";
+try{await A.acc.createEmailPasswordSession({email:$("em").value.trim(),password:$("pw").value});S.user=await A.acc.get();$("pw").value="";await enter()}
+catch(e){showLogin("ログインできませんでした。メールアドレスとパスワードを確認してください。")}
+b.disabled=false}
+async function logout(){try{await A.acc.deleteSession({sessionId:"current"})}catch(e){}S.user=null;S.tasks=[];S.msgs=[];S.view="home";S.detail=false;showLogin("")}
+$("li").onclick=doLogin;
+$("pw").onkeydown=function(e){if(e.key==="Enter"&&!e.isComposing)doLogin()};
+apply();boot();
+</script>
+</body>
+</html>
